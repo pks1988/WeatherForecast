@@ -22,7 +22,6 @@
             android:layout_marginBottom="16dp"
             android:fontFamily="sans-serif"
             android:gravity="center"
-            android:text="Today, April 03"
             android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:textColor="@color/white"
             android:textSize="20sp" />
@@ -44,8 +43,7 @@
                     android:id="@+id/weather_icon"
                     android:layout_width="96dp"
                     android:layout_height="96dp"
-                    android:adjustViewBounds="true"
-                    android:src="@drawable/cloudy" />
+                    android:adjustViewBounds="true" />
 
                 <!-- Text that describes weather condition -->
                 <TextView
@@ -53,8 +51,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="Rainy"
                     android:textColor="@color/white"
+                    tools:text="Rainy"
                     android:textSize="20sp" />
             </LinearLayout>
 
@@ -71,7 +69,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="19\u00b0"
                     android:textColor="@color/white"
                     android:textSize="72sp"
                     tools:text="19\u00b0" />
@@ -81,7 +78,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
-                    android:text="10\u00b0"
                     android:textColor="@color/white"
                     android:textSize="36sp"
                     tools:text="10\u00b0" />

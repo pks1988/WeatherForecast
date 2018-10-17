@@ -10,6 +10,9 @@ import android.widget.Toast;
 import com.kwabenaberko.openweathermaplib.models.threehourforecast.ThreeHourWeather;
 import com.weather.forecast.R;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -132,12 +135,22 @@ public class Utility {
 
 
     public static void setReadableDateFormat(TextView dateView, int pos, List<ThreeHourWeather> forecastList, Context context, ThreeHourWeather threeHourForecast) {
-        //long dateInMillis = forecastList.get(pos).getWeatherArray().get(0).getId();
-        //String dateString = com.weather.forecast.utility.DateUtils.getFriendlyDateString(context, dateInMillis, false);
-        if (forecastList != null)
-            dateView.setText(forecastList.get(pos).getDtTxt());
-        else
-            dateView.setText(threeHourForecast.getDtTxt());
+        String strDate = "";
+        if (forecastList != null) {
+            strDate = forecastList.get(pos).getDtTxt();
+            try {
+                dateView.setText(modifyDateLayout(strDate));
+            } catch (ParseException e) {
+                Log.getStackTraceString(e);
+            }
+        } else
+            strDate = threeHourForecast.getDtTxt();
+        try {
+            dateView.setText(modifyDateLayout(strDate));
+        } catch (ParseException e) {
+            Log.getStackTraceString(e);
+        }
+
     }
 
     public static void setImageResourceForWeather(ImageView weatherIcon, int pos, List<ThreeHourWeather> forecastList, Context context, ThreeHourWeather threeHourForecast) {
@@ -167,7 +180,6 @@ public class Utility {
         else
             lowInCelsius = threeHourForecast.getMain().getTempMin();
 
-
         String lowString = Utility.formatTemperature(context, lowInCelsius);
         String lowA11y = context.getString(R.string.a11y_low_temp, lowString);
         lowTemperature.setText(lowString);
@@ -179,6 +191,10 @@ public class Utility {
             weatherDescription.setText(forecastList.get(pos).getWeatherArray().get(0).getDescription());
         else
             weatherDescription.setText(threeHourForecast.getWeatherArray().get(0).getDescription());
+    }
 
+    public static String modifyDateLayout(String inputDate) throws ParseException {
+        Date date = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(inputDate);
+        return new SimpleDateFormat("EEE, d MMM").format(date);
     }
 }

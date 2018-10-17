@@ -1,6 +1,5 @@
 package com.weather.forecast;
 
-import android.Manifest;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -10,12 +9,6 @@ import android.widget.FrameLayout;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.gson.Gson;
-import com.karumi.dexter.Dexter;
-import com.karumi.dexter.PermissionToken;
-import com.karumi.dexter.listener.PermissionDeniedResponse;
-import com.karumi.dexter.listener.PermissionGrantedResponse;
-import com.karumi.dexter.listener.PermissionRequest;
-import com.karumi.dexter.listener.single.PermissionListener;
 import com.kwabenaberko.openweathermaplib.models.threehourforecast.ThreeHourWeather;
 import com.weather.forecast.fragments.MapFragment;
 import com.weather.forecast.fragments.WeatherDetailFragment;
@@ -25,7 +18,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ForeCastActivity extends FragmentActivity implements MapFragment.OnMapFragmentListener,
-        WeatherFragment.OnWeatherFragmentListener, PermissionListener, WeatherDetailFragment.OnWeatherDetailListener {
+        WeatherFragment.OnWeatherFragmentListener, WeatherDetailFragment.OnWeatherDetailListener {
 
     @BindView(R.id.container)
     FrameLayout container;
@@ -35,14 +28,14 @@ public class ForeCastActivity extends FragmentActivity implements MapFragment.On
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fore_cast);
         ButterKnife.bind(this);
-        askForPermission();
+        launchMapFrag();
     }
 
-    private void askForPermission() {
-        Dexter.withActivity(this)
-                .withPermission(Manifest.permission.ACCESS_FINE_LOCATION)
-                .withListener(this)
-                .check();
+    private void launchMapFrag() {
+        android.support.v4.app.FragmentManager fm = this.getSupportFragmentManager();
+        MapFragment mTaskFragment = (MapFragment) fm.findFragmentByTag(MapFragment.class.getSimpleName());
+        if (mTaskFragment == null)
+            replaceFragment(MapFragment.newInstance(), MapFragment.class.getSimpleName());
     }
 
     private void replaceFragment(Fragment mFragment, String backStack) {
@@ -50,24 +43,6 @@ public class ForeCastActivity extends FragmentActivity implements MapFragment.On
         ft.replace(R.id.container, mFragment, backStack);
         ft.addToBackStack(backStack);
         ft.commit();
-    }
-
-    @Override
-    public void onPermissionGranted(PermissionGrantedResponse response) {
-        android.support.v4.app.FragmentManager fm = this.getSupportFragmentManager();
-        MapFragment mTaskFragment = (MapFragment) fm.findFragmentByTag(MapFragment.class.getSimpleName());
-        if (mTaskFragment == null)
-            replaceFragment(MapFragment.newInstance(), MapFragment.class.getSimpleName());
-    }
-
-    @Override
-    public void onPermissionDenied(PermissionDeniedResponse response) {
-        askForPermission();
-    }
-
-    @Override
-    public void onPermissionRationaleShouldBeShown(PermissionRequest permission, PermissionToken token) {
-        token.continuePermissionRequest();
     }
 
     @Override
@@ -87,7 +62,8 @@ public class ForeCastActivity extends FragmentActivity implements MapFragment.On
     }
 
     @Override
-    public void onDetailsFragmentInteraction(Uri uri) {}
+    public void onDetailsFragmentInteraction(Uri uri) {
+    }
 
     @Override
     public void onBackPressed() {
@@ -95,5 +71,6 @@ public class ForeCastActivity extends FragmentActivity implements MapFragment.On
             getSupportFragmentManager().popBackStackImmediate();
 
     }
+
 
 }

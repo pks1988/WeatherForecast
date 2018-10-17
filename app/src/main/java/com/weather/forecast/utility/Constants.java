@@ -7,4 +7,5 @@ package com.weather.forecast.utility;
 public class Constants {
 
     public static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 201;
+    public static final int ACCESS_FINE_LOCATION = 401;
 }

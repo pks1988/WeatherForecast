@@ -14,9 +14,6 @@ import com.kwabenaberko.openweathermaplib.models.threehourforecast.ThreeHourWeat
 import com.weather.forecast.R;
 import com.weather.forecast.utility.Utility;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -27,11 +24,9 @@ import butterknife.ButterKnife;
  */
 
 public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherViewHolder> {
-
     private Context context;
     LayoutInflater mInflater;
     private List<ThreeHourWeather> forecastList;
-
 
     public WeatherAdapter(Context context) {
         this.context = context;
@@ -51,28 +46,17 @@ public class WeatherAdapter extends RecyclerView.Adapter<WeatherAdapter.WeatherV
 
     @Override
     public void onBindViewHolder(@NonNull WeatherViewHolder holder, int pos) {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy/mm/dd hh:mm:ss");
-        Date strDate = null;
-        try {
-            strDate = sdf.parse(forecastList.get(pos).getDtTxt());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-        if (new Date().after(strDate)) {
-            Utility.setImageResourceForWeather(holder.weatherIcon, pos, forecastList, context, null);
-            Utility.setReadableDateFormat(holder.date, pos, forecastList, context, null);
-            Utility.setHighTemperature(holder.highTemperature, pos, forecastList, context, null);
-            Utility.setLowTemperature(holder.lowTemperature, pos, forecastList, context, null);
-            Utility.setWeatherDescription(holder.weatherDescription, pos, forecastList, context, null);
-        }
-
+        Utility.setImageResourceForWeather(holder.weatherIcon, pos, forecastList, context, null);
+        Utility.setReadableDateFormat(holder.date, pos, forecastList, context, null);
+        Utility.setHighTemperature(holder.highTemperature, pos, forecastList, context, null);
+        Utility.setLowTemperature(holder.lowTemperature, pos, forecastList, context, null);
+        Utility.setWeatherDescription(holder.weatherDescription, pos, forecastList, context, null);
     }
 
     public void updateWeather(List<ThreeHourWeather> forecast) {
         this.forecastList = forecast;
         notifyDataSetChanged();
     }
-
 
     @Override
     public int getItemViewType(int position) {

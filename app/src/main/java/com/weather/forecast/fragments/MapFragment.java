@@ -13,7 +13,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.places.AutocompleteFilter;
 import com.google.android.gms.location.places.Place;
@@ -34,8 +33,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import locationprovider.davidserrano.com.LocationProvider;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener, View.OnClickListener, PlaceSelectionListener {
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnCameraIdleListener,
+        View.OnClickListener, PlaceSelectionListener {
 
 
     private final String TAG = this.getClass().getSimpleName();
@@ -50,7 +51,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private List<Address> addressList;
     private OnMapFragmentListener mListener;
     private LatLng mLatLng;
-
+    private float mapLat,mapLng;
 
     public MapFragment() {
         // Required empty public constructor
@@ -64,6 +65,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+        LocationProvider locationProvider = new LocationProvider.Builder().setContext(getActivity()).setListener(callback).create();
+        locationProvider.requestLocation();
     }
 
     @Override
@@ -71,8 +74,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_map, container, false);
         unbinder = ButterKnife.bind(this, view);
-        mapFragment = (SupportMapFragment) getChildFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
 
         return view;
     }
@@ -81,13 +83,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         mapFragment.getMapAsync(this);
         btnCheckWeather.setOnClickListener(this);
+
     }
 
     public void checkWeather() {
         if (mListener != null) {
-            String locality=Utility.getLocalityName(addressList, getActivity());
+            String locality = Utility.getLocalityName(addressList, getActivity());
             if (locality != null) {
-                mListener.onMapFragmentInteraction(mLatLng,locality);
+                mListener.onMapFragmentInteraction(mLatLng, locality);
             }
 
         }
@@ -128,7 +131,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng latLng = new LatLng(-34, 151);
+        LatLng latLng = new LatLng(mapLat, mapLng);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         mMap.getUiSettings().setZoomControlsEnabled(true);
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
@@ -146,7 +149,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btnCheckWeather:
-                Utility.showToast(getActivity(), mLatLng.latitude + " " + mLatLng.longitude);
                 if (mLatLng != null)
                     checkWeather();
                 else
@@ -180,4 +182,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         autocompleteFragment.setFilter(typeFilter);
         autocompleteFragment.setOnPlaceSelectedListener(this);
     }
+
+    LocationProvider.LocationCallback callback = new LocationProvider.LocationCallback() {
+        @Override
+        public void onNewLocationAvailable(float lat, float lon) {
+            //location update
+            mapLat=lat;
+            mapLng=lon;
+        }
+
+        @Override
+        public void locationServicesNotEnabled() {
+            //failed finding a location
+        }
+
+        @Override
+        public void updateLocationInBackground(float lat, float lon) {
+            //if a listener returns after the main locationAvailable callback, it will go here
+        }
+
+        @Override
+        public void networkListenerInitialised() {
+            //when the library switched from GPS only to GPS & network
+        }
+    };
+
 }

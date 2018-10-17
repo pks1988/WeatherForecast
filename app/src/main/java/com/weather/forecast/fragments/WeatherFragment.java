@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -57,6 +58,8 @@ public class WeatherFragment extends Fragment {
     @BindView(R.id.recyclerview_forecast)
     RecyclerView recyclerviewForecast;
     Unbinder unbinder;
+    @BindView(R.id.swipeRefresh)
+    SwipeRefreshLayout swipeRefresh;
     private double latitude;
     private double longitude;
     private String locality;
@@ -105,24 +108,35 @@ public class WeatherFragment extends Fragment {
     }
 
     private void weatherConfigs() {
-        showWeather();
+        adapterSetup();
         registerUserObserver();
         setRecyclerClicks();
     }
 
-    private void showWeather() {
+    private void adapterSetup() {
+        swipeRefresh.setEnabled(true);
+        swipeRefresh.setRefreshing(true);
         adapter = new WeatherAdapter(getActivity());
         recyclerviewForecast.setAdapter(adapter);
         recyclerviewForecast.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
     private void registerUserObserver() {
-        if (weatherViewModel == null)
-            return;
+        if (weatherViewModel == null) return;
         weatherViewModel.getFutureWeatherForecast().observe(this, new Observer<ThreeHourForecast>() {
             @Override
             public void onChanged(@Nullable ThreeHourForecast threeHourForecast) {
+                swipeRefresh.setRefreshing(false);
+                swipeRefresh.setEnabled(false);
+
+                if (threeHourForecast == null) {
+                    Utility.showToast(getActivity(), "Unable to find weather report for your city");
+                    getActivity().getSupportFragmentManager().popBackStackImmediate();
+                    return;
+                }
+
                 if (threeHourForecast == null) return;
+                collapsingToolbar.setTitle(threeHourForecast.getCity().getName());
                 updateCurrentWeather(threeHourForecast);
                 adapter.updateWeather(threeHourForecast.getThreeHourWeatherArray());
             }
@@ -178,7 +192,7 @@ public class WeatherFragment extends Fragment {
             mListener = (OnWeatherFragmentListener) context;
         } else {
             throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
+                    + " must implement OnWeatherFragmentListener");
         }
     }
 
